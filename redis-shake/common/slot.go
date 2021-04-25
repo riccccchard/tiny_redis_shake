@@ -32,6 +32,9 @@ func KeyToSlot(key string) uint16 {
 
 // chose key(${prefix}-${suffix}) to let it hash in the given slot boundary: [left, right].
 // return suffix
+// 这个函数使用dfs搜索的方法，在redis-shake-checkpoint这个前缀后面添加后缀，然后寻找到第一个添加了后缀之后
+// ，会被hash函数映射到[left, right] slot的key，然后返回这个后缀。
+// 这样，checkpoint的key为 redis-shake-checkpoint-${suffix}，这个key一定映射在[left, right]区间
 func ChoseSlotInRange(prefix string, left, right int) string {
 	judge := func(slot int) bool {
 		if slot >= left && slot <= right {

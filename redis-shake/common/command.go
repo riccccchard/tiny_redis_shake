@@ -188,6 +188,18 @@ type SlotOwner struct {
 	SlotLeftBoundary  int
 	SlotRightBoundary int
 }
+/*
+通过 cluster slots 命令获取redis cluster slots信息，形如：
+	1) 1) (integer) 10923
+   2) (integer) 16383
+   3) 1) "10.65.8.175"
+      2) (integer) 6012
+      3) "2456d544f8cda18589e44718451e4b7a4a4fb28a"
+   4) 1) "10.65.8.175"
+      2) (integer) 6015
+      3) "a4c92d11daa1e211cdef3d28d87c06fc41d7185c"
+
+ */
 
 func GetSlotDistribution(target, authType, auth string, tlsEnable bool) ([]SlotOwner, error) {
 	c := OpenRedisConn([]string{target}, authType, auth, false, tlsEnable)

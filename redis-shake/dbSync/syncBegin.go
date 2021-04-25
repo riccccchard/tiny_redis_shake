@@ -31,6 +31,9 @@ func (ds *DbSyncer) sendSyncCmd(master, authType, passwd string, tlsEnable bool)
 		}
 	}
 }
+/*
+	向目标node发送psync命令进行同步
+ */
 
 func (ds *DbSyncer) sendPSyncCmd(master, authType, passwd string, tlsEnable bool, runId string,
 		prevOffset int64) (pipe.Reader, int64, bool, string) {

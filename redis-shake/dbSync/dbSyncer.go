@@ -86,14 +86,18 @@ func (ds *DbSyncer) Sync() {
 
 	var err error
 	runId, offset, dbid := "?", int64(-1), 0
+	//如果允许断线重连,获取runId, offset 和dbid 用于sync/psync的参数
 	if ds.enableResumeFromBreakPoint {
 		// assign the checkpoint name with suffix if is cluster
+		// checkpoint 的名称都是以"redis-shake-checkpoint"为前缀
 		if ds.slotLeftBoundary != -1 {
+			//寻找到第一个会被hash到[left,right]区间的checkpointName
 			ds.checkpointName = utils.ChoseSlotInRange(utils.CheckpointKey, ds.slotLeftBoundary, ds.slotRightBoundary)
 		}
 
 		// checkpoint reload if has
 		log.Infof("DbSyncer[%d] enable resume from break point, try to load checkpoint", ds.id)
+		//获取checkpoint，用于增量同步
 		runId, offset, dbid, err = checkpoint.LoadCheckpoint(ds.id, ds.source, ds.target, conf.Options.TargetAuthType,
 			ds.targetPassword, ds.checkpointName, conf.Options.TargetType == conf.RedisTypeCluster, conf.Options.SourceTLSEnable)
 		if err != nil {
@@ -107,6 +111,7 @@ func (ds *DbSyncer) Sync() {
 	var input io.ReadCloser
 	var nsize int64
 	var isFullSync bool
+	//发送psync命令进行同步
 	if conf.Options.Psync {
 		input, nsize, isFullSync, runId = ds.sendPSyncCmd(ds.source, conf.Options.SourceAuthType, ds.sourcePassword,
 			conf.Options.SourceTLSEnable, runId, offset)
@@ -141,7 +146,6 @@ func (ds *DbSyncer) Sync() {
 		// set fullSyncProgress to 100 when skip full sync stage
 		metric.GetMetric(ds.id).SetFullSyncProgress(ds.id, 100)
 	}
-
 	// sync increment
 	base.Status = "incr"
 	close(ds.WaitFull)

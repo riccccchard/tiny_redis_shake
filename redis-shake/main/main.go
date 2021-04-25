@@ -96,6 +96,7 @@ func main() {
 	}
 
 	// create runner
+	//根据配置文件选择同步类型
 	var runner base.Runner
 	switch *tp {
 	case conf.TypeDecode:

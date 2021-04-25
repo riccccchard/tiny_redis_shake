@@ -8,7 +8,12 @@ import (
 	"strings"
 	"redis-shake/pkg/libs/log"
 )
-
+/*
+	获取check point
+	1.通过info keyspace 获取key和db的信息
+    2.从db中获取offset最大的作为之后同步的checkpoint
+    3.除了最大的offset的db，其他的db都清除offset标记，record db作为之后同步的db
+ */
 func LoadCheckpoint(dbSyncerId int, sourceAddr string, target []string, authType, passwd string,
 		checkpointName string, isCluster bool, tlsEnable bool) (string, int64, int, error) {
 	c := utils.OpenRedisConn(target, authType, passwd, isCluster, tlsEnable)
